@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     unoptimized: true, // GitHub Pages doesn't support the default Next.js Image Optimization API
   },
 
-  basePath: '/linktree',
+  basePath: '/LinkTree',
 };
 
 export default nextConfig;
