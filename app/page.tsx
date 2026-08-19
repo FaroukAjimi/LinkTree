@@ -3,6 +3,9 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import type { MouseEvent } from "react";
 
+const publicAsset = (path: string) =>
+  `${process.env.NODE_ENV === "production" ? "/LinkTree" : ""}${path}`;
+
 export default function Home() {
   const templates = useMemo(
     () => [
@@ -11,7 +14,7 @@ export default function Home() {
         id: "tpl-Star Vision",
         layout: "stack",
         title: "Star Vision",
-        imageSrc: "/MainMenu.jpg",
+        imageSrc: publicAsset("/MainMenu.jpg"),
         aboutTitle: "About",
         description:
           "Design a light show for any song.\n\nStar Vision lets you upload a song, split it into sections, and program synced lighting visuals then play the track back with your custom light show.",
@@ -41,7 +44,7 @@ export default function Home() {
         id: "tpl-Owl Insight",
         layout: "stack",
         title: "Owl Insight",
-        imageSrc: "/owl.jpg",
+        imageSrc: publicAsset("/owl.jpg"),
         aboutTitle: "About",
         description: "Owl Insight is a third-person memory-and-puzzle game with dual gameplay: scout the night as an owl flying between trees to observe and gather clues then return as Traveller as the same events unfold again at the exact same time.",
                 ctaLinks: [
@@ -59,7 +62,6 @@ export default function Home() {
         id: "tpl-twitter",
         layout: "stack",
         title: "Twitter / X",
-        imageSrc: "/images/x.png",
         aboutTitle: "About",
         description: "Default description (this is the description).",
       },
