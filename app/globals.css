@@ -1,26 +1,475 @@
 @import "tailwindcss";
 
+/* Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Context-fit palette: night / starfield / link card */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Background (space) */
+  --bg-0: #1f1e1e;
+  --bg-1: #1f1e1e;
+
+  /* Card */
+  --card-bg: rgb(13, 16, 34);
+  --card-border: rgba(246, 193, 119, 0.95);
+  --card-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+
+  /* Text */
+  --text: #f4f7ff;
+  --muted: rgba(3, 15, 48, 0.72);
+
+  /* Buttons */
+  --btn-bg: #0a0a0a2f;
+  --btn-hover: #0309272a;
+  --btn-text: #f4f7ff;
+  --btn-border: rgba(246, 193, 119, 0.95);
+  --focus: rgba(255, 222, 175, 0.95);
+
+  /* Stars (populated by JS) */
+  --stars-sm: 0 0 transparent;
+  --stars-lg: 0 0 transparent;
+  --twinkle-delay-sm: 0s;
+  --twinkle-delay-lg: 0s;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@font-face {
+  font-family: "YourFont";
+  src: url("/GoogleSansCode_Proportional-ExtraBold.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@font-face {
+  font-family: "YourFont";
+  src: url("/GoogleSansCode_Proportional-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1rem; /* responsive spacing so card never touches edges */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text);
+  font-family: "YourFont", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  /* Deep night gradient */
+  background:
+    radial-gradient(1200px 800px at 25% 15%, rgba(93, 214, 255, 0.10), transparent 55%),
+    radial-gradient(900px 700px at 75% 25%, rgba(246, 193, 119, 0.08), transparent 60%),
+    linear-gradient(180deg, var(--bg-0), var(--bg-1));
+
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* STARFIELD (slight drifting + twinkle) */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+
+  will-change: transform, opacity, filter;
+  transform: translate3d(0, 0, 0);
+}
+
+body::before {
+  width: 1px;
+  height: 1px;
+  background: #fff;
+  box-shadow: var(--stars-sm);
+  opacity: 0.85;
+  mix-blend-mode: screen;
+
+  animation:
+    driftSm 55s ease-in-out infinite,
+    twinkleSm 6s ease-in-out infinite;
+  animation-delay: var(--twinkle-delay-sm), var(--twinkle-delay-sm);
+}
+
+body::after {
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  box-shadow: var(--stars-lg);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+
+  animation:
+    driftLg 75s ease-in-out infinite,
+    twinkleLg 8s ease-in-out infinite;
+  animation-delay: var(--twinkle-delay-lg), var(--twinkle-delay-lg);
+}
+
+@keyframes driftSm {
+  0%   { transform: translate3d(0px, 0px, 0); }
+  25%  { transform: translate3d(10px, -6px, 0); }
+  50%  { transform: translate3d(-8px, -10px, 0); }
+  75%  { transform: translate3d(-12px, 6px, 0); }
+  100% { transform: translate3d(0px, 0px, 0); }
+}
+
+@keyframes driftLg {
+  0%   { transform: translate3d(0px, 0px, 0); }
+  25%  { transform: translate3d(-12px, 10px, 0); } /* reduced for mobile friendliness */
+  50%  { transform: translate3d(-8px, 8px, 0); }
+  75%  { transform: translate3d(-4px, 4px, 0); }
+  100% { transform: translate3d(0px, 0px, 0); }
+}
+
+@keyframes twinkleSm {
+  0%   { opacity: 0.55; filter: brightness(0.95); }
+  20%  { opacity: 0.90; filter: brightness(1.25); }
+  45%  { opacity: 0.60; filter: brightness(1.00); }
+  70%  { opacity: 0.95; filter: brightness(1.35); }
+  100% { opacity: 0.65; filter: brightness(1.05); }
+}
+
+@keyframes twinkleLg {
+  0%   { opacity: 0.35; filter: brightness(0.95); }
+  30%  { opacity: 0.85; filter: brightness(1.35); }
+  60%  { opacity: 0.45; filter: brightness(1.05); }
+  100% { opacity: 0.70; filter: brightness(1.25); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none;
+  }
+}
+
+/* Card (responsive width + responsive height) */
+.container{
+  --r: 5rem;
+  --b: 5px;
+  --gap: 1rem;     /* space between outer + inner borders */
+  --pad: 2rem;     /* content padding INSIDE the inner layer */
+
+  width: min(28rem, calc(100vw - 2rem));
+  height: min(75vh, 760px);
+  max-height: calc(100dvh - 2rem);
+
+  display: flex;
+  flex-direction: column;
+
+  padding: var(--gap);          /* only the layer gap */
+  box-sizing: border-box;
+
+  background-color: rgb(3, 1, 1);
+  box-shadow: inset 0 0 2rem #646364;
+  border-radius: var(--r);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+}
+
+.innercontainer{
+  flex: 1;
+  min-height: 0;                /* important if child will scroll */
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: var(--pad);          /* content padding belongs here */
+
+  background-color: #1f1e1e;
+
+  /* parallel corners */
+  border-radius: calc(var(--r) - var(--b) - var(--gap));
+
+  overflow: hidden;             /* clip to rounded corners */
+}
+
+.content-wrapper{
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+
+
+/* Profile */
+.profile-section {
+  width: 100%;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+
+  margin: 0;
+  padding: 0;
+}
+
+.profile-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: rgb(255, 248, 223);
+
+  margin: 5%;
+  width: 100%;
+  display: block;
+
+  padding-bottom: 0.75rem;
+}
+
+.profile-bio {
+  color: rgb(255, 248, 223);
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Links fill remaining height */
+.links-container {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  align-items: stretch;
+
+  overflow-y: auto; /* if screen is short, allow scroll instead of squishing too much */
+}
+
+/* Buttons fill links height equally, but won't get too tiny */
+.link-button {
+  width: 100%;
+  flex: 1 1 56px;  /* can grow to fill height, but has a sensible base size */
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background-color: var(--btn-bg);
+  color: rgb(255, 248, 223);
+  box-shadow: inset 0 0 1rem black;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-weight: 700;
+  padding: 0.9rem 1rem;
+  text-decoration: none;
+  border-radius: 1.25rem;
+  background-color: #0f0f0f;
+  transition: background-color 0.2s ease, transform 0.08s ease, border-color 0.2s ease;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.link-button:hover {
+  background-color: black;
+  border-color: rgb(5, 201, 255);
+}
+
+.link-button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.link-button:active {
+  transform: translateY(1px);
+}
+
+.link-icon {
+  font-size: 1.25rem;
+}
+
+.footer {
+  text-align: center;
+  color: rgb(255, 248, 223);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Templates */
+.template-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.return-button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgb(255, 248, 223);
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.return-button:hover {
+  align-self: flex-start;
+  border-color: rgba(93, 214, 255, 0.6);
+}
+
+.template-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: rgb(255, 248, 223);
+  line-height: 1.2;
+  flex: 1;
+  align-items: center;
+}
+
+.template-content {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  overflow-y: auto; /* long descriptions won't break the card */
+}
+.template-cta{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.template-section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: rgb(255, 248, 223);
+}
+
+.template-description {
+  margin: 0;
+  color: rgb(255, 248, 223);
+  line-height: 1.6;
+}
+
+.template-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(246, 193, 119, 0.95);
+}
+
+/* Option 2 */
+.template-content--center {
+  text-align: center;
+}
+.template-image--center {
+  height: 160px;
+}
+
+/* Option 3 */
+.template-content--split {
+  flex-direction: row;
+  align-items: stretch;
+}
+.template-image--split {
+  width: 42%;
+  height: auto;
+}
+.template-split-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.container2{
+  --r: 5rem;
+  --b: 1px;
+  --gap: 1rem;
+
+
+  border-radius: var(--r);
+
+  padding: var(--gap);
+  box-sizing: border-box;
+    /* width: responsive */
+  width: min(28rem, calc(100vw - 2rem)); /* fits nicely on mobile */
+  /* height: responsive */
+  height: min(75vh, 760px);
+  max-height: calc(100dvh - 2rem); /* prevents overflow on mobile browser UI */
+  background-color: #1f1e1e;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 1rem #09000e;
+  backdrop-filter: blur(1rem);
+}
+
+
+
+/* Mobile responsiveness (width + height + spacing) */
+@media (max-width: 640px) {
+  body {
+    padding: 0.75rem;
+  }
+
+  .container {
+    width: 100%;
+    height: calc(100dvh - 1.5rem); /* fills viewport nicely on mobile */
+    max-height: calc(100dvh - 1.5rem);
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+  }
+
+  .links-container {
+    gap: 0.75rem;
+  }
+
+  .link-button {
+    font-size: 0.95rem;
+    min-height: 54px;
+  }
+
+  /* split template becomes stacked */
+  .template-content--split {
+    flex-direction: column;
+  }
+  .template-image--split {
+    width: 100%;
+    height: 180px;
+  }
+}
+
+/* Extra-short screens: prioritize usability (scroll) */
+@media (max-height: 620px) {
+  .container {
+    height: calc(100dvh - 2rem);
+    max-height: calc(100dvh - 2rem);
+  }
+
+  .link-button {
+    flex: 0 0 auto;   /* fixed-ish height */
+    min-height: 50px; /* keeps buttons tappable */
+  }
 }
