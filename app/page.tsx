@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useState } from "react";
+import type { MouseEvent } from "react";
 
 export default function Home() {
   const templates = useMemo(
@@ -99,10 +100,10 @@ export default function Home() {
     { title: "Contact", url: "#", icon: "", templateId: "tpl-contact" },
   ];
 
-  const [activeTemplateId, setActiveTemplateId] = useState(null);
+  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
   const activeTemplate = templates.find((t) => t.id === activeTemplateId) ?? null;
 
-  const handleLinkClick = (e, link) => {
+  const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, link: (typeof links)[number]) => {
     if (link.templateId) {
       e.preventDefault();
       setActiveTemplateId(link.templateId);
@@ -111,7 +112,7 @@ export default function Home() {
 
   // Stars
   useEffect(() => {
-    const makeShadowList = (count, w, h, big = false) => {
+    const makeShadowList = (count: number, w: number, h: number, big = false) => {
       const shadows = [];
       for (let i = 0; i < count; i++) {
         const x = Math.floor(Math.random() * w);
@@ -195,9 +196,9 @@ export default function Home() {
                   <p className="template-description">{activeTemplate.description}</p>
 
                   {/* CTA (videos) */}
-                  {activeTemplate.ctaLinks?.length > 0 && (
+                  {(activeTemplate.ctaLinks?.length ?? 0) > 0 && (
                     <div className="template-cta">
-                      {activeTemplate.ctaLinks.map((btn, idx) => (
+                      {(activeTemplate.ctaLinks ?? []).map((btn, idx) => (
                         <a
                           key={idx}
                           href={btn.url}
@@ -213,9 +214,9 @@ export default function Home() {
                   )}
 
                   {/* Download */}
-                  {activeTemplate.dwnlLinks?.length > 0 && (
+                  {(activeTemplate.dwnlLinks?.length ?? 0) > 0 && (
                     <div className="template-dwnl">
-                      {activeTemplate.dwnlLinks.map((btn, idx) => (
+                      {(activeTemplate.dwnlLinks ?? []).map((btn, idx) => (
                         <a
                           key={idx}
                           href={btn.url}
@@ -257,7 +258,7 @@ export default function Home() {
 
               {activeTemplate.layout === "menu" && (
                 <div className="links-container">
-                  {activeTemplate.buttons.map((btn, idx) => (
+                  {(activeTemplate.buttons ?? []).map((btn, idx) => (
                     <a key={idx} href={btn.url} target="_blank" rel="noopener noreferrer" className="link-button">
                       <span className="link-icon">{btn.icon}</span>
                       <span>
