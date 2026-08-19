@@ -4,9 +4,7 @@ const repo = "LinkTree";
 
 const nextConfig: NextConfig = {
   output: "export",
-  images: {
-    unoptimized: true,
-  },
+
 
   // Helps GitHub Pages serve routes as /about/ -> /about/index.html
   trailingSlash: true,
