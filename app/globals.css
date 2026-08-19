@@ -42,6 +42,10 @@ body{
   --twinkle-delay-lg: 0s;
 }
 
+html {
+  background: var(--bg-1);
+}
+
 @font-face {
   font-family: "YourFont";
   src: url("/GoogleSansCode_Proportional-ExtraBold.ttf") format("truetype");
@@ -69,6 +73,7 @@ body {
   justify-content: center;
 
   color: var(--text);
+  background-color: var(--bg-1);
   font-family: "YourFont", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 
   /* Deep night gradient */
